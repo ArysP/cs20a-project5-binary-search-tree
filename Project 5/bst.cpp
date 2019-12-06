@@ -105,12 +105,12 @@ void BinarySearchTree::printTree() const {
 // has a Node* as a parameter.  Any function of that form passed into _inorder will be
 // called as seen below.  
 void BinarySearchTree::inorder(Node* node, std::function<void(Node*)> process) {
+
 	if (node == nullptr) return;
 
 	inorder(node->left, process);
 	process(node);
 	inorder(node->right, process);
-
 }
 
 void BinarySearchTree::postorder(Node* node, std::function<void(Node*)> process) {
@@ -120,7 +120,6 @@ void BinarySearchTree::postorder(Node* node, std::function<void(Node*)> process)
 	postorder(node->left, process);
 	postorder(node->right, process);
 	process(node);
-
 }
 
 void BinarySearchTree::preorder(Node* node, std::function<void(Node*)> process) {
@@ -139,9 +138,19 @@ BinarySearchTree::Node* BinarySearchTree::insert(Node* node, int value) {
 	if (node == nullptr) {
 		Node* n = new Node(value, nullptr, nullptr);
 		return n;
-		return nullptr;
 	}
+	
+	if (node->value == value)
+		return node;
+
+	if (value < node->value)
+		node->left = insert(node->left, value);
+	else
+		node->right = insert(node->right, value);
+
+	return node;
 }
+
 
 // BinarySearchTree::_search recursively searches the tree for value.
 BinarySearchTree::Node* BinarySearchTree::search(Node* node, int value) const {
@@ -263,43 +272,35 @@ BinarySearchTree::Node* BinarySearchTree::deleteNode(Node* node, int value) {
 	if (node == nullptr)
 		return nullptr;
 
-	// Recursive calls
 	if (value < node->value) {
 		node->left = deleteNode(node->left, value);
 	}
 	else if (value > node->value) {
 		node->right = deleteNode(node->right, value);
 	}
-	else { // current node is to be deleted
-		// cases: 1. no children, 2. 1 child, 3. 2 children
-
-		//Case 1
+	else { 
+		//no children
 		if (node->left == nullptr && node->right == nullptr) {
 			delete node;
 			node = nullptr;
 		}
-		//Case 2
-		else if (node->left == NULL) {
+		//1 child
+		else if (node->left == nullptr) {
 			Node* temp = node->right;
 			delete node;
 			node = temp;
 		}
-		else if (node->right == NULL) {
+		else if (node->right == nullptr) {
 			Node* temp = node->left;
 			delete node;
 			node = temp;
 		}
-		//Case 3
+		//2 children
 		else {
-			//find swap value (left subtree max)
-			Node* swnode = maxNode(node->left);
-			//replace value in current node
-			node->value = swnode->value;
-			//recursive delete call
-			node->left = deleteNode(node->left, swnode->value);
+			Node* swapnode = maxNode(node->left);
+			node->value = swapnode->value;
+			node->left = deleteNode(node->left, swapnode->value);
 		}
 	}
 	return node;
 }
-
-
